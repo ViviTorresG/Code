@@ -3,39 +3,87 @@ import ReactDOM from "react-dom";
 
 //import App from "./App";
 
+let todoID = 0;
+
+const Todo = (props) => (
+  <li>
+    <input
+      type="checkbox"
+      checked={props.todo.checked}
+      onChange={props.onToggle}
+    />
+    <button onClick={props.onDelete}>delete</button>
+    <span>{props.todo.text}</span>
+  </li>
+);
+
 class App extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
-      count: 0
+      todos: []
     };
   }
 
-  increaseCount() {
-//This merges both actions, rather than doing it twice
-    this.setState(prevState => ({ count: prevState.count + 1 }));
-    console.log("Printing in console value of count " + this.state.count);
-    this.setState(prevState => ({ count: prevState.count + 1 }));
-    console.log("Printing in console value of count " + this.state.count);
+  addTodo() {
+    const todoText = prompt("TODO text please!");
+    this.setState({
+      todos: [
+        ...this.state.todos,
+        { id: todoID++, text: todoText, checked: false }
+      ]
+    });
+  }
+
+  toggleTodo(id) {
+    this.setState({
+      todos: this.state.todos.map((todo) => {
+        if (todo.id === id) {
+          return {
+            id: todo.id,
+            text: todo.text,
+            checked: !todo.checked
+          };
+        } else {
+          return todo;
+        }
+      })
+    });
+  }
+
+  removeTodo(id) {
+    this.setState({
+      todos: this.state.todos.filter((todo) => todo.id !== id)
+    });
   }
 
   render() {
     return (
-      <div className="App">
+      <div>
+        <div>Todo count: {this.state.todos.length}</div>
         <div>
-          <button onClick={() => this.increaseCount()}>Increase Count</button>
+          Unchecked todo count:{" "}
+          {this.state.todos.filter((todo) => !todo.checked).length}
         </div>
-        <h2>{this.state.count}</h2>
+        <button onClick={() => this.addTodo()}>Add Todo</button>
+        <ul>
+          {this.state.todos.map((todo) => (
+            <Todo
+              onDelete={() => this.removeTodo(todo.id)}
+              onToggle={() => this.toggleTodo(todo.id)}
+              todo={todo}
+            />
+          ))}
+        </ul>
       </div>
     );
   }
 }
 
-let count = 0;
 const rootElement = document.getElementById("root");
 ReactDOM.render(
   <React.StrictMode>
-    <App count={count} />
+    <App />
   </React.StrictMode>,
   rootElement
 );
